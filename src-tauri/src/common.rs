@@ -1,6 +1,8 @@
 use std::fmt::{Display, Formatter};
 
-#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Clone, Copy, PartialEq, Debug, Hash, Eq, Serialize, Deserialize)]
 pub struct Point<T> {
     pub x: T,
     pub y: T,
@@ -52,7 +54,7 @@ impl Into<Point<usize>> for Point<isize> {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Direction {
     Up,
     Down,

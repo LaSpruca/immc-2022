@@ -7,7 +7,7 @@
 	let grid: null | GridTile[][];
 
 	const loadImage = async () => {
-		invoke("load_image").then((_grid: GridTile[][]) => (grid = _grid));
+		grid = await invoke("load_image");
 	};
 </script>
 

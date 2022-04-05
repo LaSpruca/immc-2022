@@ -6,6 +6,7 @@
 mod commands;
 pub mod common;
 pub mod plane;
+pub mod beno;
 
 use commands::*;
 
