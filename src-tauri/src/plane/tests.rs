@@ -106,12 +106,12 @@ fn test_find_path() {
     let grid = load_grid_from_img("./beno express.png").unwrap();
 
     let case1 = path_find_for_seat(&Point { x: 0, y: 5 }, &Point { x: 5, y: 2 }, &grid).unwrap();
-    let expected1 = VecDeque::from(vec![Left, Left, Left, Left, Up, Up, Up, Up, Left]);
+    let expected1 = VecDeque::from(vec![Right, Right, Right, Right, Up, Up, Up, Up, Right]);
     assert_eq!(case1, expected1);
 
     let case2 = path_find_for_seat(&Point { x: 14, y: 5 }, &Point { x: 12, y: 10 }, &grid).unwrap();
     let expected2 = VecDeque::from(vec![
-        Right, Right, Right, Right, Down, Down, Down, Down, Down,
+        Left, Left, Left, Left, Down, Down, Down, Down, Down,
     ]);
     assert_eq!(case2, expected2);
 }

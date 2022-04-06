@@ -1,5 +1,7 @@
-use serde::{Deserialize, Serialize};
+#[cfg(test)]
+mod tests;
 
+use serde::{Deserialize, Serialize};
 use crate::common::{Direction, Point};
 
 #[derive(Serialize, Deserialize)]
@@ -39,17 +41,21 @@ impl Kind {
 pub enum Task {
     Waiting,
     Walking,
+    WaitingShuffle,
     Stowing,
-    Shuffling,
+    Sitting,
+    ShufflingIn,
+    ShufflingOut,
 }
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum Action {
     Move(Direction),
-    MoveAndSit(Direction),
+    NotifyRowAndMove(Direction),
     StowBags,
     SeatShuffle,
     None,
+    SeatMove(Point<usize>),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -74,11 +80,19 @@ impl Beno {
             self.done_action = true;
             return Action::None;
         }
+        
+        if self.task == Task::Stowing {
+            if self.luggage > 0 {
+                return Action::StowBags;
+            } else {
+                return Action::SeatMove(self.seat);
+            }
+        }
 
         if self.path.is_empty() {
             return Action::StowBags;
         } else if self.path.len() == 1 {
-            return Action::MoveAndSit(self.path[9]);
+            return Action::NotifyRowAndMove(self.path[0]);
         } else {
             return Action::Move(self.path[0]);
         }
@@ -87,15 +101,36 @@ impl Beno {
     pub fn stow(&mut self) {
         self.cool_down = self.kind.stow_time();
         self.task = Task::Stowing;
+
+        self.done_action = true;
     }
 
     pub fn walk(&mut self) {
         self.cool_down = self.kind.walk_speed();
+        self.path.remove(0);
         self.task = Task::Walking;
+        self.done_action = true;
     }
 
     pub fn stop(&mut self) {
         self.cool_down = self.kind.reaction_time();
         self.task = Task::Waiting;
+        self.done_action = true;
+    }
+
+    pub fn shuffle_in(&mut self) {
+        self.cool_down = self.kind.walk_speed() * 2;
+        self.task = Task::ShufflingIn;
+        self.done_action = true;
+    }
+
+    pub fn shuffle_out(&mut self) {
+        self.cool_down = self.kind.walk_speed() * 2;
+        self.task = Task::ShufflingOut;
+        self.done_action = true;
+    }
+
+    pub fn is_seated(&self) -> bool {
+        self.task == Task::Sitting
     }
 }

@@ -54,6 +54,13 @@ impl Into<Point<usize>> for Point<isize> {
     }
 }
 
+impl Point<isize> {
+    pub const UP: Point<isize> = Point { x: 0, y: -1 };
+    pub const DOWN: Point<isize> = Point { x: 0, y: 1 };
+    pub const LEFT: Point<isize> = Point { x: -1, y: 0 };
+    pub const RIGHT: Point<isize> = Point { x: 1, y: 0 };
+}
+
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Direction {
     Up,

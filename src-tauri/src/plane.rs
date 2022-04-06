@@ -86,19 +86,15 @@ pub fn path_find_for_seat(
                 )
             })
             .map(|(point1, point2)| {
-                let dif = point1 - point2;
-                print!("{point1} - {point2} = {dif}");
-                if dif.x == 1 {
-                    println!(" Right");
+                let dif = point2 - point1;
+                
+                if dif == Point::RIGHT {
                     Direction::Right
-                } else if dif.x == -1 {
-                    println!(" Left");
+                } else if dif == Point::LEFT {
                     Direction::Left
-                } else if dif.y == 1 {
-                    println!(" Up");
+                } else if dif == Point::UP {
                     Direction::Up
-                } else if dif.y == -1 {
-                    println!(" Down");
+                } else if dif == Point::DOWN {
                     Direction::Down
                 } else {
                     unreachable!("Pathfinding shat itself")

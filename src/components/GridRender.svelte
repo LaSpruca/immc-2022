@@ -18,14 +18,17 @@
     .plane {
         display: flex;
         flex-direction: row;
+        gap: 3px;
     }
 
     .column {
         display: flex;
         flex-direction: column;
+        gap: 3px;
     }
 
     .tile {
+        border-radius: 2px;
         width: 25px;
         height: 25px;
 
