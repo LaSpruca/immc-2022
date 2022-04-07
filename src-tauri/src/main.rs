@@ -3,10 +3,11 @@
     windows_subsystem = "windows"
 )]
 
+pub mod beano;
 mod commands;
 pub mod common;
 pub mod plane;
-pub mod beno;
+pub mod simulation;
 
 use commands::*;
 

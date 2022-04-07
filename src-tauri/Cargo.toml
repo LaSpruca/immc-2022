@@ -28,6 +28,7 @@ tauri = { version = "1.0.0-rc.6", features = ["api-all"] }
 image = "0.24.1"
 thiserror = "1.0"
 pathfinding = "3.0"
+rand = "0.8.5"
 
 [features]
 # by default Tauri runs in production mode

@@ -68,3 +68,14 @@ pub enum Direction {
     Left,
     Right,
 }
+
+impl Direction {
+    pub fn pos(&self) -> Point<isize> {
+        match self {
+            Direction::Up => Point::UP,
+            Direction::Down => Point::DOWN,
+            Direction::Left => Point::LEFT,
+            Direction::Right => Point::RIGHT,
+        }
+    }
+}
