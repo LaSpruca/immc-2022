@@ -6,6 +6,13 @@ pub struct Beanoz {
 }
 
 impl Beanoz {
+    pub fn insert(&mut self, point: &Point<usize>, beano: Beano) {
+        let count = self.inner.len();
+        self.inner.insert(*point, (beano, count));
+    }
+}
+
+impl Beanoz {
     pub fn get(&mut self, pos: &Point<usize>) -> Option<&mut Beano> {
         Some(&mut self.inner.get_mut(pos)?.0)
     }

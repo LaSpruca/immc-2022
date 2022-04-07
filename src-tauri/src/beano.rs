@@ -43,6 +43,26 @@ pub struct Beano {
 }
 
 impl Beano {
+    pub fn new(
+        kind: Kind,
+        seat: Point<usize>,
+        path: Vec<Direction>,
+        luggage: u32,
+        disembarking: bool,
+    ) -> Self {
+        Self {
+            cool_down: 0,
+            waiting: false,
+            disembarking,
+            path,
+            luggage,
+            done_action: false,
+            task: Task::ShuffleIn,
+            kind,
+            seat,
+        }
+    }
+
     pub fn desired_action(&mut self) -> Action {
         self.done_action = true;
 

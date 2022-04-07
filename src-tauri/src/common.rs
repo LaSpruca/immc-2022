@@ -59,6 +59,13 @@ impl Point<isize> {
     pub const DOWN: Point<isize> = Point { x: 0, y: 1 };
     pub const LEFT: Point<isize> = Point { x: -1, y: 0 };
     pub const RIGHT: Point<isize> = Point { x: 1, y: 0 };
+
+    pub fn abs(&self) -> Self {
+        Self {
+            x: self.x.abs(),
+            y: self.y.abs(),
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, Serialize, Deserialize)]

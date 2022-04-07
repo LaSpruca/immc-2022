@@ -1,9 +1,19 @@
 use crate::beano::{Action, Beano, Beanoz};
 use crate::common::{Direction, Point};
+use std::collections::HashMap;
 
-pub fn run_iteration(beanoz: &mut Beanoz) {
+pub fn run_iteration(beanoz: &mut Beanoz, spawner: &mut HashMap<Point<usize>, Vec<Beano>>) {
     while let Some(next_pos) = beanoz.next_pos() {
         simulate_beano(&next_pos, beanoz);
+    }
+
+    for entry in spawner.keys() {
+        let spawn_beanoz = spawner.get_mut(entry).unwrap();
+
+        if !spawn_beanoz.is_empty() && check_pos(entry, beanoz).is_none() {
+            beanoz.insert(entry, spawn_beanoz[0].clone());
+            spawn_beanoz.remove(0);
+        }
     }
 
     beanoz.reset();
