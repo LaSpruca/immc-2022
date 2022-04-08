@@ -1,7 +1,6 @@
-use crate::common::{Direction, Point};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub enum Kind {
     Adult,
     Kid,

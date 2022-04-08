@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod tests;
+
 use crate::beano::{Action, Beano, Beanoz};
 use crate::common::{Direction, Point};
 use std::collections::HashMap;
@@ -7,7 +10,7 @@ pub fn run_iteration(beanoz: &mut Beanoz, spawner: &mut HashMap<Point<usize>, Ve
         simulate_beano(&next_pos, beanoz);
     }
 
-    for entry in spawner.keys() {
+    for entry in spawner.clone().keys() {
         let spawn_beanoz = spawner.get_mut(entry).unwrap();
 
         if !spawn_beanoz.is_empty() && check_pos(entry, beanoz).is_none() {
@@ -16,104 +19,123 @@ pub fn run_iteration(beanoz: &mut Beanoz, spawner: &mut HashMap<Point<usize>, Ve
         }
     }
 
+    println!("{beanoz:#?}");
+
+    println!("---------------------------");
+
     beanoz.reset();
 }
 
 fn simulate_beano(pos: &Point<usize>, beanoz: &mut Beanoz) {
-    let beano = beanoz.get(pos).unwrap();
+    let init_pos = *pos;
     let mut pos = *pos;
-    match beano.desired_action() {
+    let ro_beano = beanoz.get(&pos).unwrap().clone();
+
+    match beanoz.get(&pos).unwrap().desired_action() {
         Action::None => {}
         Action::ShuffleToSeat => {
-            let dir = pos - beano.seat();
+            let pos_isize: Point<isize> = pos.into();
+            let dir = pos_isize - beanoz.get(&pos).unwrap().seat().into();
+            println!("Shuffle: {dir}, Pos {pos}");
+
             if dir.x == 0 {
-                beano.sit()
+                println!("Sit ass down");
+                beanoz.get(&pos).unwrap().sit()
+            } else if dir.x < 0 {
+                pos = (Point::RIGHT + pos.into()).into();
             } else {
-                if dir.x < 0 {
-                    pos = (Point::RIGHT + pos.into()).into();
-                } else {
-                    pos = (Point::LEFT + pos.into()).into();
-                }
-                beano.shuffle();
+                pos = (Point::LEFT + pos.into()).into();
+            }
+
+            beanoz.get(&pos_isize.into()).unwrap().shuffle();
+        }
+        Action::WaitForWalk(dir) => {
+            let point = dir.pos() + pos.into();
+            if check_pos(&point.into(), beanoz).is_none() {
+                beanoz.get(&pos).unwrap().stop_waiting();
             }
         }
         Action::Move(dir) => move_beano(dir, &pos, beanoz),
         Action::CheckRow => {
             let mut cleared = true;
-            for (i, x) in if beano.seat().x > pos.x {
-                (pos.x + 1)..beano.seat().x
+            for (i, x) in if beanoz.get(&pos).unwrap().seat().x > pos.x {
+                (pos.x + 1)..beanoz.get(&pos).unwrap().seat().x
             } else {
-                beano.seat().x..(pos.x - 1)
+                beanoz.get(&pos).unwrap().seat().x..(pos.x - 1)
             }
             .enumerate()
             {
                 if let Some(o) = check_pos(&Point { x, y: pos.y }, beanoz) {
                     if !o.is_in_isle() {
                         cleared = false;
-                        if !o.is_shuffling_out() {
-                            o.move_to_isle(i as u32, beano.seat())
+                        if !o.is_shuffling_out() && o.is_seated() {
+                            o.move_to_isle(i as u32, ro_beano.seat())
                         }
                     }
                 }
             }
 
             if cleared {
-                beano.move_to_seat()
+                beanoz.get(&pos).unwrap().shuffle()
             } else {
-                beano.wait()
+                beanoz.get(&pos).unwrap().wait()
             }
         }
         Action::MovingToIsle(pos) => {
-            beano.wait_for_seat(pos);
+            beanoz.get(&pos).unwrap().wait_for_seat(pos);
         }
         Action::WaitingForSeat(seat) => {
             if let Some(o) = check_pos(&seat, beanoz) {
                 if o.is_seated() {
-                    beano.sit();
+                    beanoz.get(&pos).unwrap().sit();
                 }
             }
         }
         Action::ShuffleOut => {
-            let dir = pos - beano.seat();
+            let pos_isize: Point<isize> = pos.into();
+            let dir = pos_isize - beanoz.get(&pos).unwrap().seat().into();
             if dir.x == 0 {
-                beano.walk()
+                beanoz.get(&pos).unwrap().walk()
             } else {
                 if dir.x < 0 {
                     pos = (Point::RIGHT + pos.into()).into();
                 } else {
                     pos = (Point::LEFT + pos.into()).into();
                 }
-                beano.shuffle();
+                beanoz.get(&pos_isize.into()).unwrap().shuffle();
             }
         }
         Action::Disembark => {}
     }
-
-    beanoz.update(beano, &pos);
+    beanoz.update(&init_pos.into(), &pos);
 }
 
 fn check_pos<'a>(pos: &Point<usize>, beanoz: &'a mut Beanoz) -> Option<&'a mut Beano> {
-    if let Some(o) = beanoz.get(pos) {
-        if o.done_action() {
-            Some(o)
-        } else {
-            let mut pos = pos;
-            simulate_beano(pos, beanoz);
-            beanoz.get(pos)
+    let done_action;
+    match beanoz.get(pos) {
+        Some(o) => {
+            done_action = o.done_action();
         }
-    } else {
-        None
+        None => return None,
     }
+
+    if !done_action {
+        simulate_beano(pos, beanoz);
+    }
+
+    beanoz.get(pos)
 }
 
 fn move_beano(dir: Direction, pos: &Point<usize>, beanoz: &mut Beanoz) {
-    let beano = beanoz.get(pos).unwrap();
     let new: Point<usize> = (dir.pos() + (*pos).into()).into();
     match check_pos(&new, beanoz) {
-        None => beanoz.update(beano, &new),
+        None => {
+            beanoz.get(pos).unwrap().walk();
+            beanoz.update(pos, &new);
+        }
         Some(o) => {
             if !o.is_walking() {
-                beano.wait()
+                beanoz.get(pos).unwrap().wait()
             }
         }
     }

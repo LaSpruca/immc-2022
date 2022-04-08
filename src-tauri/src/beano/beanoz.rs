@@ -1,6 +1,8 @@
 use crate::beano::Beano;
 use crate::common::Point;
 use std::collections::HashMap;
+
+#[derive(Clone, Debug)]
 pub struct Beanoz {
     inner: HashMap<Point<usize>, (Beano, usize)>,
 }
@@ -21,15 +23,14 @@ impl Beanoz {
         self.inner.remove(pos);
     }
 
-    pub fn update(&mut self, beano: &Beano, new_pos: &Point<usize>) {
-        if let Some((pt, f)) = self.inner.iter().find(|(_, x)| x.0 == beano) {
-            self.inner.remove(pt);
-            self.inner.insert(new_pos.clone(), f.to_owned());
+    pub fn update(&mut self, old_pos: &Point<usize>, new_pos: &Point<usize>) {
+        if let Some(o) = self.inner.remove(old_pos) {
+            self.inner.insert(*new_pos, o);
         }
     }
 
     pub fn reset(&mut self) {
-        for key in self.inner.keys() {
+        for key in self.inner.clone().keys() {
             self.inner.get_mut(key).unwrap().0.reset();
         }
     }
@@ -43,6 +44,16 @@ impl Beanoz {
                 .0
                 .to_owned(),
         )
+    }
+
+    pub fn all_seated(&self) -> bool {
+        self.inner.len() > 0
+            && self
+                .inner
+                .iter()
+                .filter(|(_, (beano, _))| !beano.is_seated())
+                .count()
+                == 0
     }
 }
 
@@ -66,7 +77,7 @@ impl Into<Vec<(Point<usize>, Beano)>> for Beanoz {
             .map(|(pos, (beano, index))| (index, pos, beano))
             .collect::<Vec<_>>();
 
-        k.sort_by_key(|(i, _, _)| i);
+        k.sort_by_key(|(i, _, _)| *i);
 
         k.into_iter().map(|(_, pos, beano)| (pos, beano)).collect()
     }

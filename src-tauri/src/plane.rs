@@ -6,14 +6,14 @@ mod tests;
 pub use error::Error;
 use image::io::Reader as ImageReader;
 use pathfinding::prelude::*;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::{collections::VecDeque, path::Path};
 
 use crate::common::{Direction, Point};
 
 pub type Grid = Vec<Vec<GridTile>>;
 
-#[derive(Clone, Debug, PartialEq, Serialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum GridTile {
     None,
     Walkway,
@@ -87,7 +87,7 @@ pub fn path_find_for_seat(
             })
             .map(|(point1, point2)| {
                 let dif = point2 - point1;
-                
+
                 if dif == Point::RIGHT {
                     Direction::Right
                 } else if dif == Point::LEFT {

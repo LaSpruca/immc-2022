@@ -61,10 +61,14 @@ pub fn generate_random(grid: Grid) -> HashMap<Point<usize>, Vec<Beano>> {
             Kind::OtherSpecialistSupport
         };
 
-        beanoz
-            .get_mut(&entry.0)
-            .get_or_insert(&mut vec![])
-            .push(Beano::new(kind, *pos, path, 1, false));
+        if beanoz.contains_key(&(entry.0)) {
+            beanoz
+                .get_mut(&(entry.0))
+                .unwrap()
+                .push(Beano::new(kind, *pos, path, 1, false));
+        } else {
+            beanoz.insert(entry.0, vec![Beano::new(kind, *pos, path, 1, false)]);
+        }
     }
 
     beanoz

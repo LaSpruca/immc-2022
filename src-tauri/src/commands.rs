@@ -25,7 +25,7 @@ pub fn generate_random(grid: Grid) -> Vec<(Point<usize>, Vec<Beano>)> {
 }
 
 #[tauri::command]
-pub fn run_iteration(
+pub async fn run_iteration(
     beanoz: Vec<(Point<usize>, Beano)>,
     spawner: Vec<(Point<usize>, Vec<Beano>)>,
 ) -> (Vec<(Point<usize>, Beano)>, Vec<(Point<usize>, Vec<Beano>)>) {

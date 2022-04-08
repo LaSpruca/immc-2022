@@ -6,6 +6,7 @@ mod tests;
 use crate::common::{Direction, Point};
 pub use beanoz::Beanoz;
 pub use kind::Kind;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
 pub enum Action {
@@ -17,9 +18,10 @@ pub enum Action {
     WaitingForSeat(Point<usize>),
     ShuffleOut,
     Disembark,
+    WaitForWalk(Direction),
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum Task {
     ShuffleIn,
     Stow,
@@ -29,7 +31,7 @@ pub enum Task {
     Sitting,
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Serialize, Deserialize, Debug)]
 pub struct Beano {
     cool_down: u32,
     waiting: bool,
@@ -57,7 +59,7 @@ impl Beano {
             path,
             luggage,
             done_action: false,
-            task: Task::ShuffleIn,
+            task: Task::Move,
             kind,
             seat,
         }
@@ -67,11 +69,21 @@ impl Beano {
         self.done_action = true;
 
         if self.cool_down > 0 {
-            if self.waiting {
+            if !self.waiting {
                 self.cool_down -= 1
             }
 
-            Action::None
+            if self.waiting && self.task == Task::Move {
+                if self.path.is_empty() {
+                    self.task = Task::Stow;
+                    self.waiting = false;
+                    Action::None
+                } else {
+                    Action::WaitForWalk(self.path[0])
+                }
+            } else {
+                Action::None
+            }
         } else {
             match self.task {
                 Task::ShuffleIn => Action::ShuffleToSeat,
@@ -119,6 +131,7 @@ impl Beano {
     }
 
     pub fn sit(&mut self) {
+        println!("I sat my ass down");
         self.task = Task::Sitting;
         self.waiting = false;
     }
@@ -185,5 +198,10 @@ impl Beano {
         self.task = Task::Move;
         self.waiting = false;
         self.cool_down = self.kind.walk_speed();
+        self.path.remove(0);
+    }
+
+    pub fn stop_waiting(&mut self) {
+        self.waiting = false;
     }
 }
