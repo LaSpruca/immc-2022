@@ -1,0 +1,29 @@
+[package]
+name = "immc-2022"
+version = "0.1.0"
+description = "Loads up and unloads some benos"
+authors = ["Nathan Hare<me@laspruca.nz>"]
+license = ""
+repository = ""
+default-run = "immc-2022"
+edition = "2021"
+rust-version = "1.57"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[profile.release]
+panic = "abort"   # Strip expensive panic clean-up logic
+codegen-units = 1 # Compile crates one after another so the compiler can optimize better
+lto = true        # Enables link to optimizations
+opt-level = "s"   # Optimize for binary size
+
+
+[dependencies]
+image = "0.24.1"
+thiserror = "1.0"
+pathfinding = "3.0"
+rand = "0.8.5"
+bevy = "0.6"
+bevy_egui = "0.12"
+native-dialog = "0.6.3"
+log = "0.4.16"
