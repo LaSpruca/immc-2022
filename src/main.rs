@@ -6,8 +6,8 @@ pub mod plane;
 pub mod simulation;
 
 use crate::app::{
-    destroy_plane, load_plane_ui, render_plane, set_window_icon, setup, show_error,
-    sim_controls_ui, update_grid,
+    destroy_plane, load_plane_ui, move_camera, render_plane, set_window_icon, setup, show_error,
+    sim_controls_ui, update_camera_text, update_grid,
 };
 use bevy::prelude::*;
 use bevy_egui::EguiPlugin;
@@ -29,5 +29,7 @@ fn main() {
         .add_system(destroy_plane)
         .add_system(sim_controls_ui)
         .add_system(update_grid)
+        .add_system(update_camera_text)
+        .add_system(move_camera)
         .run();
 }
